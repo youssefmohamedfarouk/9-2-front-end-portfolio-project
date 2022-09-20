@@ -22,6 +22,7 @@ fetch(mediaType["movie"])
   });
 
 function displayMovie(movieArray) {
+  trending.innerHTML = "";
   for (const elem of movieArray) {
     const movieID = elem.id;
 
@@ -34,9 +35,12 @@ function displayMovie(movieArray) {
     posterContainer.classList.add("poster-container");
 
     const moviePoster = document.createElement("img");
+    let movieImageLink = elem.poster_path
+      ? elem.poster_path
+      : "/8gdIKyQ587Gdo4XCc99usA1eyA7.jpg";
     moviePoster.setAttribute(
       "src",
-      `https://image.tmdb.org/t/p/w220_and_h330_face/${elem.backdrop_path}`
+      `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
     );
     moviePoster.setAttribute("alt", `${elem.original_title}`);
     moviePoster.classList.add("movie-poster");
@@ -63,26 +67,26 @@ function makePosterClickable(movieContainer, movieID) {
 }
 
 function getMovieByID(id) {
-    fetch(
-        `https://api.themoviedb.org/3/movie/${id}?api_key=b4f0bb28773f25e473bf71f5c8d38006&language=en-US`
-      )
-        .then((event) => {
-          return event.json();
-        })
-        .then((event) => {
-          console.log(event);
-          generateMovieDetails(event);
-        });
+  fetch(
+    `https://api.themoviedb.org/3/movie/${id}?api_key=b4f0bb28773f25e473bf71f5c8d38006&language=en-US`
+  )
+    .then((event) => {
+      return event.json();
+    })
+    .then((event) => {
+      console.log(event);
+      generateMovieDetails(event);
+    });
 }
 
 function generateMovieDetails(event) {
-    trending.innerHTML = `<img src='https://image.tmdb.org/t/p/w440_and_h660_face/${
-          event.poster_path
-        }' alt="${event.title}" id="detail-poster">
+  trending.innerHTML = `<img src='https://image.tmdb.org/t/p/w440_and_h660_face/${
+    event.poster_path
+  }' alt="${event.title}" id="detail-poster">
         <div><h3 id="detail-title">${event.title} (${event.release_date.slice(
-          0,
-          4
-        )})</h3></div>
+    0,
+    4
+  )})</h3></div>
         <div><strong><em><p id="detail-tagline">"${
           event.tagline
         }"</p></strong></em></div>
@@ -97,16 +101,31 @@ function generateMovieDetails(event) {
 
 movieSearch.addEventListener("submit", (event) => {
   event.preventDefault();
-  let strQuery = searchBar.value.replace(" ", "%20");
-  strQuery = strQuery.replace("?", "%3F");
-  strQuery = strQuery.replace("!", "%21");
-  strQuery = strQuery.replace(":", "%3A");
-  strQuery = strQuery.replace(";", "%3B");
-  strQuery = strQuery.replace("&", "%26");
 
+  const chars = {
+    " ": "%20",
+    "?": "%3F",
+    "!": "%21",
+    ":": "%3A",
+    ";": "%3B",
+    "&": "%26",
+  };
+  let strQuery = searchBar.value;
+  strQuery = strQuery.replace(/[ ?!:;&]/g, (m) => chars[m]);
+  console.log(strQuery);
+
+  //   let strQuery = searchBar.value.replace(" ", "%20");
+  //   strQuery = strQuery.replace("?", "%3F");
+  //   strQuery = strQuery.replace("!", "%21");
+  //   strQuery = strQuery.replace(":", "%3A");
+  //   strQuery = strQuery.replace(";", "%3B");
+  //   strQuery = strQuery.replace("&", "%26");
 
   console.log(strQuery);
 
+  if (!strQuery) {
+    window.alert("Please enter a search result");
+  }
   fetch(
     `https://api.themoviedb.org/3/search/movie?api_key=b4f0bb28773f25e473bf71f5c8d38006&language=en-US&query=${strQuery}&page=1&include_adult=false`
   )
@@ -114,14 +133,42 @@ movieSearch.addEventListener("submit", (event) => {
       return event.json();
     })
     .then((event) => {
-        console.log(event);
-        getMovieByID(event.results[0].id);
-    })
-    .catch((error) => {
-      console.log(error);
+      console.log(event.results);
+      displayMovie(event.results);
     });
 });
 
-function getMovieDetails(movieID) {}
+// function generateSearchResults(movieArr) {
+//   for (const elem of movieArr) {
+//     const movieID = elem.id;
+
+//     const movieTitle = elem.original_title
+//       ? elem.original_title
+//       : elem.original_name;
+//     console.log(elem.id);
+
+//     const posterContainer = document.createElement("div");
+//     posterContainer.classList.add("poster-container");
+
+//     const moviePoster = document.createElement("img");
+//     moviePoster.setAttribute(
+//       "src",
+//       `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
+//     );
+//     moviePoster.setAttribute("alt", `${elem.original_title}`);
+//     moviePoster.classList.add("movie-poster");
+
+//     const hoverText = document.createElement("p");
+//     hoverText.classList.add("hover-text");
+//     hoverText.textContent = `${movieTitle}`;
+
+//     posterContainer.append(moviePoster);
+//     posterContainer.append(hoverText);
+
+//     trending.append(posterContainer);
+
+//     makePosterClickable(posterContainer, movieID);
+//   }
+// }
 
 // structure for poster links https://image.tmdb.org/t/p/w440_and_h660_face/jsoz1HlxczSuTx0mDl2h0lxy36l.jpg
