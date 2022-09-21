@@ -35,9 +35,8 @@ function displayMovie(movieArray) {
     posterContainer.classList.add("poster-container");
 
     const moviePoster = document.createElement("img");
-    let movieImageLink = elem.poster_path
-      ? elem.poster_path
-      : "/8gdIKyQ587Gdo4XCc99usA1eyA7.jpg";
+    // console.log(elem);
+    let movieImageLink = elem.poster_path || elem.backdrop_path || "/8gdIKyQ587Gdo4XCc99usA1eyA7.jpg";
     moviePoster.setAttribute(
       "src",
       `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
@@ -87,7 +86,7 @@ function generateMovieDetails(event) {
     0,
     4
   )})</h3></div>
-        <div><strong><em><p id="detail-tagline">"${
+        <div id="description-container"><div><strong><em><p id="detail-tagline">"${
           event.tagline
         }"</p></strong></em></div>
         <div><strong><p id="detail-overview">${event.overview}</p><strong></div>
@@ -96,7 +95,7 @@ function generateMovieDetails(event) {
         } minutes</p></div>
         <div><p id="detail-rating"><strong>Average Rating:</strong> ${
           event.vote_average
-        }</p></div>`;
+        }</p></div></div>`;
 }
 
 movieSearch.addEventListener("submit", (event) => {

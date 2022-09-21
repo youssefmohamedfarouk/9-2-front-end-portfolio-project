@@ -172,6 +172,7 @@ body {
 
 #search-icon {
     filter: invert(1);
+    margin-left: 5px;
 }
 
 #search-form {
@@ -207,23 +208,35 @@ body {
 #detail-tagline {
     padding-top: 20px;
     padding-bottom: 20px;
-    color: #DE0075;
+    color: white;
     font-size: larger;
 }
 
 #detail-overview {
     padding-top: 20px;
     padding-bottom: 20px;
-    color: #DE0075;
+    color: white;
     font-size: large;
 }
 
 #detail-runtime {
     padding-top: 20px;
     padding-bottom: 20px;
-    color: #DE0075;
+    color: white;
+
 }
 
 #detail-rating {
-    color: #DE0075;
+    color: white;
+}
+
+#movie-search {
+    display: flex;
+}
+
+#description-container {
+    margin-top: 1px;
+    background-color: #b11ea0c2;
+    /* background-image: linear-gradient(#b11ea0c2, white); */
+    padding-bottom: 321px;
 }
