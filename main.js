@@ -44,14 +44,17 @@ function displayMovie(movieArray) {
 
     const moviePoster = document.createElement("img");
     // console.log(elem);
-    let movieImageLink =
-      elem.poster_path ||
-      elem.backdrop_path ||
-      "/A4zZv0Q1VKURFZFEl2vwjaE2q0g.jpg";
-    moviePoster.setAttribute(
-      "src",
-      `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
-    );
+
+    let movieImageLink = elem.poster_path || elem.backdrop_path;
+    if (movieImageLink) {
+      moviePoster.setAttribute(
+        "src",
+        `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
+      );
+    } else {
+      moviePoster.setAttribute("src", `./assets/aaaa but smaller.jpg`);
+    }
+
     moviePoster.setAttribute("alt", `${elem.original_title}`);
     moviePoster.classList.add("movie-poster");
 
@@ -86,16 +89,21 @@ function getMovieByID(id) {
     })
     .then((event) => {
       // console.log(event);
+      // getStreamingAvailability(event.id);
       // generateMovieDetails(event);
-      getStreamingAvailability(event.id);
+      fetch(
+        `https://streaming-availability.p.rapidapi.com/get/basic?country=us&tmdb_id=movie%2F${event.id}&output_language=en`,
+        options
+      ).then(getStreamingAvailability(event.id))
+      .catch(generateMovieDetails(event))
     });
 }
 
 function generateMovieDetails(event) {
   // const streamingAvail = getStreamingAvailability(event.id);
-  trending.innerHTML = `<img src='https://image.tmdb.org/t/p/w440_and_h660_face/${
-    event.poster_path
-  }' alt="${event.title}" id="detail-poster">
+  const posterLink = event.poster_path ? `https://image.tmdb.org/t/p/w440_and_h660_face/${event.poster_path}` : "./assets/aaaa.jpg";
+
+  trending.innerHTML = `<img src=${posterLink} alt="${event.title}" id="detail-poster">
         <div><h3 id="detail-title">${event.title} (${event.release_date.slice(
     0,
     4
@@ -125,11 +133,12 @@ function getStreamingAvailability(movieID) {
       // return response;
       console.log(response);
 
-
-      trending.innerHTML = `<img src=${
-        response.posterURLs[500]
-      } alt="${response.title}" id="detail-poster">
-        <div><h3 id="detail-title">${response.title} (${response.year})</h3></div>
+      trending.innerHTML = `<img src=${response.posterURLs[500]} alt="${
+        response.title
+      }" id="detail-poster">
+        <div><h3 id="detail-title">${response.title} (${
+        response.year
+      })</h3></div>
         <div id="description-container"><div><strong><em><p id="detail-tagline">"${
           response.tagline || "In a world..."
         }"</p></strong></em></div>
@@ -138,10 +147,12 @@ function getStreamingAvailability(movieID) {
           "Rob Schneider derp de derp. Derp de derpity derpy derp. Until one day, the derpa derpa derpaderp. Derp de derp. Da teedily dumb. From the creators of Der, and Tum Ta Tittaly Tum Ta Too, Rob Schneider is Da Derp Dee Derp Da Teetley Derpee Derpee Dumb. Rated PG-13."
         }</p><strong></div>
         <div><p id="detail-director"><strong>Directed by</strong> ${
-          response.significants.length > 1 ? response.significants.join(', ') : response.significants[0]
+          response.significants.length > 1
+            ? response.significants.join(", ")
+            : response.significants[0]
         } </p></div>
         <div><p id="detail-actors"><strong>Starring: </strong><br> ${
-          response.cast.length > 1 ? response.cast.join(', ') : response.cast[0]
+          response.cast.length > 1 ? response.cast.join(", ") : response.cast[0]
         } </p></div>
         <div><p id="detail-runtime"><strong>Runtime:</strong> ${
           response.runtime
@@ -150,7 +161,7 @@ function getStreamingAvailability(movieID) {
           response.imdbRating
         }</p></div></div>`;
     })
-    .catch((err) => console.error(err));
+    .catch((err) => isGetStreamingBroken = true);
 }
 
 movieSearch.addEventListener("submit", (event) => {
