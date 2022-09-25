@@ -8,6 +8,14 @@ const mediaType = {
 const trending = document.querySelector(".trending");
 const movieSearch = document.getElementById("movie-search");
 const searchBar = document.getElementById("search-bar");
+const trendingNowH2 = document.getElementById("trending-h2");
+const options = {
+  method: "GET",
+  headers: {
+    "X-RapidAPI-Key": "715caad85amsh7aa5f682ea5092fp16fc1cjsnaa96b8793391",
+    "X-RapidAPI-Host": "streaming-availability.p.rapidapi.com",
+  },
+};
 
 fetch(mediaType["movie"])
   .then((event) => {
@@ -29,14 +37,17 @@ function displayMovie(movieArray) {
     const movieTitle = elem.original_title
       ? elem.original_title
       : elem.original_name;
-    console.log(elem.id);
+    // console.log(elem.id);
 
     const posterContainer = document.createElement("div");
     posterContainer.classList.add("poster-container");
 
     const moviePoster = document.createElement("img");
     // console.log(elem);
-    let movieImageLink = elem.poster_path || elem.backdrop_path || "/8gdIKyQ587Gdo4XCc99usA1eyA7.jpg";
+    let movieImageLink =
+      elem.poster_path ||
+      elem.backdrop_path ||
+      "/A4zZv0Q1VKURFZFEl2vwjaE2q0g.jpg";
     moviePoster.setAttribute(
       "src",
       `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
@@ -60,6 +71,7 @@ function displayMovie(movieArray) {
 function makePosterClickable(movieContainer, movieID) {
   movieContainer.addEventListener("click", (event) => {
     trending.innerHTML = "";
+    trendingNowH2.textContent = "Details";
 
     getMovieByID(movieID);
   });
@@ -73,12 +85,14 @@ function getMovieByID(id) {
       return event.json();
     })
     .then((event) => {
-      console.log(event);
-      generateMovieDetails(event);
+      // console.log(event);
+      // generateMovieDetails(event);
+      getStreamingAvailability(event.id);
     });
 }
 
 function generateMovieDetails(event) {
+  // const streamingAvail = getStreamingAvailability(event.id);
   trending.innerHTML = `<img src='https://image.tmdb.org/t/p/w440_and_h660_face/${
     event.poster_path
   }' alt="${event.title}" id="detail-poster">
@@ -87,15 +101,56 @@ function generateMovieDetails(event) {
     4
   )})</h3></div>
         <div id="description-container"><div><strong><em><p id="detail-tagline">"${
-          event.tagline
+          event.tagline || "In a world..."
         }"</p></strong></em></div>
-        <div><strong><p id="detail-overview">${event.overview}</p><strong></div>
+        <div><strong><p id="detail-overview">${
+          event.overview ||
+          "Rob Schneider derp de derp. Derp de derpity derpy derp. Until one day, the derpa derpa derpaderp. Derp de derp. Da teedily dumb. From the creators of Der, and Tum Ta Tittaly Tum Ta Too, Rob Schneider is Da Derp Dee Derp Da Teetley Derpee Derpee Dumb. Rated PG-13."
+        }</p><strong></div>
         <div><p id="detail-runtime"><strong>Runtime:</strong> ${
           event.runtime
         } minutes</p></div>
         <div><p id="detail-rating"><strong>Average Rating:</strong> ${
           event.vote_average
         }</p></div></div>`;
+}
+
+function getStreamingAvailability(movieID) {
+  fetch(
+    `https://streaming-availability.p.rapidapi.com/get/basic?country=us&tmdb_id=movie%2F${movieID}&output_language=en`,
+    options
+  )
+    .then((response) => response.json())
+    .then((response) => {
+      // return response;
+      console.log(response);
+
+
+      trending.innerHTML = `<img src=${
+        response.posterURLs[500]
+      } alt="${response.title}" id="detail-poster">
+        <div><h3 id="detail-title">${response.title} (${response.year})</h3></div>
+        <div id="description-container"><div><strong><em><p id="detail-tagline">"${
+          response.tagline || "In a world..."
+        }"</p></strong></em></div>
+        <div><strong><p id="detail-overview">${
+          response.overview ||
+          "Rob Schneider derp de derp. Derp de derpity derpy derp. Until one day, the derpa derpa derpaderp. Derp de derp. Da teedily dumb. From the creators of Der, and Tum Ta Tittaly Tum Ta Too, Rob Schneider is Da Derp Dee Derp Da Teetley Derpee Derpee Dumb. Rated PG-13."
+        }</p><strong></div>
+        <div><p id="detail-director"><strong>Directed by</strong> ${
+          response.significants.length > 1 ? response.significants.join(', ') : response.significants[0]
+        } </p></div>
+        <div><p id="detail-actors"><strong>Starring: </strong><br> ${
+          response.cast.length > 1 ? response.cast.join(', ') : response.cast[0]
+        } </p></div>
+        <div><p id="detail-runtime"><strong>Runtime:</strong> ${
+          response.runtime
+        } minutes</p></div>
+        <div><p id="detail-rating"><strong>Average IMDB Rating:</strong> ${
+          response.imdbRating
+        }</p></div></div>`;
+    })
+    .catch((err) => console.error(err));
 }
 
 movieSearch.addEventListener("submit", (event) => {
@@ -113,13 +168,6 @@ movieSearch.addEventListener("submit", (event) => {
   strQuery = strQuery.replace(/[ ?!:;&]/g, (m) => chars[m]);
   console.log(strQuery);
 
-  //   let strQuery = searchBar.value.replace(" ", "%20");
-  //   strQuery = strQuery.replace("?", "%3F");
-  //   strQuery = strQuery.replace("!", "%21");
-  //   strQuery = strQuery.replace(":", "%3A");
-  //   strQuery = strQuery.replace(";", "%3B");
-  //   strQuery = strQuery.replace("&", "%26");
-
   console.log(strQuery);
 
   if (!strQuery) {
@@ -136,38 +184,5 @@ movieSearch.addEventListener("submit", (event) => {
       displayMovie(event.results);
     });
 });
-
-// function generateSearchResults(movieArr) {
-//   for (const elem of movieArr) {
-//     const movieID = elem.id;
-
-//     const movieTitle = elem.original_title
-//       ? elem.original_title
-//       : elem.original_name;
-//     console.log(elem.id);
-
-//     const posterContainer = document.createElement("div");
-//     posterContainer.classList.add("poster-container");
-
-//     const moviePoster = document.createElement("img");
-//     moviePoster.setAttribute(
-//       "src",
-//       `https://image.tmdb.org/t/p/w220_and_h330_face/${movieImageLink}`
-//     );
-//     moviePoster.setAttribute("alt", `${elem.original_title}`);
-//     moviePoster.classList.add("movie-poster");
-
-//     const hoverText = document.createElement("p");
-//     hoverText.classList.add("hover-text");
-//     hoverText.textContent = `${movieTitle}`;
-
-//     posterContainer.append(moviePoster);
-//     posterContainer.append(hoverText);
-
-//     trending.append(posterContainer);
-
-//     makePosterClickable(posterContainer, movieID);
-//   }
-// }
 
 // structure for poster links https://image.tmdb.org/t/p/w440_and_h660_face/jsoz1HlxczSuTx0mDl2h0lxy36l.jpg
