@@ -193,7 +193,7 @@ function getStreamingAvailability(movieID) {
           <div><p id="detail-rating"><strong>Average IMDB Rating:</strong> ${
             response.imdbRating
           }</p></div></div>`;
-          if (response.streamingInfo) {
+          if (Object.keys(response.streamingInfo).length) {
             const descriptionContainer = document.getElementById('description-container');
             descriptionContainer.innerHTML += "<div><p style='color: white'>Available to stream on: </p></div>"
             console.log(response.streamingInfo);
