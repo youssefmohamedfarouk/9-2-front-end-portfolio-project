@@ -9,6 +9,52 @@ const trending = document.querySelector(".trending");
 const movieSearch = document.getElementById("movie-search");
 const searchBar = document.getElementById("search-bar");
 const trendingNowH2 = document.getElementById("trending-h2");
+
+const genres = {
+  1: "Biography",
+  2: "Film Noir",
+  3: "Game Show",
+  4: "Musical",
+  5: "Sport",
+  6: "Short",
+  7: "Adult",
+  12: "Adventure",
+  14: "Fantasy",
+  16: "Animation",
+  18: "Drama",
+  27: "Horror",
+  28: "Action",
+  35: "Comedy",
+  36: "History",
+  37: "Western",
+  53: "Thriller",
+  80: "Crime",
+  99: "Documentary",
+  878: "Science Fiction",
+  9648: "Mystery",
+  10402: "Music",
+  10749: "Romance",
+  10751: "Family",
+  10752: "War",
+  10763: "News",
+  10764: "Reality",
+  10767: "Talk Show",
+};
+
+const streamingServices = {
+  netflix: "Netflix",
+  prime: "Amazon Prime",
+  disney: "Disney+",
+  hbo: "HBO Max",
+  hulu: "Hulu",
+  peacock: "Peacock",
+  paramount: "Paramount",
+  starz: "Starz",
+  showtime: "Showtime",
+  apple: "Apple",
+  mubi: "Mubi",
+};
+
 const options = {
   method: "GET",
   headers: {
@@ -160,6 +206,19 @@ function getStreamingAvailability(movieID) {
         <div><p id="detail-rating"><strong>Average IMDB Rating:</strong> ${
           response.imdbRating
         }</p></div></div>`;
+        if (response.streamingInfo) {
+          const descriptionContainer = document.getElementById('description-container');
+          descriptionContainer.innerHTML += "<div><p style='color: white'>Available to stream on: </p></div>"
+          console.log(response.streamingInfo);
+          const listOStreams = document.createElement("ul");
+          listOStreams.setAttribute("id" , "stream-list")
+          for (const [key, value] of Object.entries(response.streamingInfo)) {
+            const streamLink = document.createElement('li');
+            streamLink.innerHTML = `<p id="${key}-stream"><u><a href="${value.us.link}" style="color:white;text-decoration:underline">${streamingServices[key]}</a></u></p>`
+            listOStreams.append(streamLink);
+          }
+          descriptionContainer.append(listOStreams);
+        }
     })
     .catch((err) => isGetStreamingBroken = true);
 }

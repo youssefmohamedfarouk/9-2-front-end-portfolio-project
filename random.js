@@ -193,6 +193,19 @@ function getStreamingAvailability(movieID) {
           <div><p id="detail-rating"><strong>Average IMDB Rating:</strong> ${
             response.imdbRating
           }</p></div></div>`;
+          if (response.streamingInfo) {
+            const descriptionContainer = document.getElementById('description-container');
+            descriptionContainer.innerHTML += "<div><p style='color: white'>Available to stream on: </p></div>"
+            console.log(response.streamingInfo);
+            const listOStreams = document.createElement("ul");
+            listOStreams.setAttribute("id" , "stream-list")
+            for (const [key, value] of Object.entries(response.streamingInfo)) {
+              const streamLink = document.createElement('li');
+              streamLink.innerHTML = `<p id="${key}-stream"><u><a href="${value.us.link}" style="color:white;text-decoration:underline">${streamingServices[key]}</a></u></p>`
+              listOStreams.append(streamLink);
+            }
+            descriptionContainer.append(listOStreams);
+          }
     })
     .catch((err) => console.error(err));
 }
