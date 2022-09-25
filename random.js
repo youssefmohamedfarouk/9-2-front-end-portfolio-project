@@ -123,11 +123,12 @@ function generateRandom() {
         <div id="description-container"><div><strong><em><p id="detail-tagline">Please try changing your search criteria</p></strong></em></div>`;
         } else {
           if (response.total_pages > 1) {
-            randomSearchPage = Math.floor(Math.random() * response.total_pages);
+            randomSearchPage = Math.ceil(Math.random() * response.total_pages);
           } else {
             randomSearchPage = 1;
           }
 
+          console.log("Page " + randomSearchPage);
           const yearParam = year.value ? `&year_min=${year.value}&year_max=${year.value}` : '';
           const genreParam = genreDropdown.value ? `&genre=${genreDropdown.value}` : '';
 
@@ -138,8 +139,9 @@ function generateRandom() {
             .then((response) => response.json())
             .then((response) => {
               const randomMovieIndx = Math.floor(
-                Math.random() * (response.results.length - 1)
+                Math.random() * response.results.length
               );
+              console.log(randomMovieIndx);
               getStreamingAvailability(
                 response.results[randomMovieIndx].tmdbID
               );
